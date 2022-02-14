@@ -10,7 +10,7 @@ body, html {
     margin: 0;
 }
 .tablink {
-    background: rgb(0,39,76);
+    background: rgb(58, 85, 110);;
     color: rgb(255,203,5);
     float: left;
     border: none;
@@ -32,35 +32,35 @@ body, html {
     height: 100%;
 }
 
-#Math425 {background-color: rgb(58, 85, 110);}
-#ARMv7 {background-color: rgb(58, 85, 110);}
-#STM-32 {background-color: rgb(58, 85, 110);}
-#Old_Textbooks {background-color: rgb(58, 85, 110);}
+#Math425 {background-color: rgb(0,39,76);}
+#ARMv7 {background-color: rgb(0,39,76);}
+#STM-32 {background-color: rgb(0,39,76);}
+#Old_Textbooks {background-color: rgb(0,39,76);}
 </style>
 </head>
 <body>
-<button class="tablink" onclick="selectBook('Math425', this, 'rgb(58, 85, 110)')" id="defaultOpen">Math425</button>
-<button class="tablink" onclick="selectBook('ARMv7', this, 'rgb(58, 85, 110)')">ARMv7</button>
-<button class="tablink" onclick="selectBook('STM-32', this, 'rgb(58, 85, 110)')">STM-32</button>
-<button class="tablink" onclick="selectBook('Old_Textbooks', this, 'rgb(58, 85, 110)')">Old Textbooks</button>
+<button class="tablink" onclick="selectBook('Math425', this, 'rgb(0,39,76)')" id="defaultOpen">Math425</button>
+<button class="tablink" onclick="selectBook('ARMv7', this, 'rgb(0,39,76)')">ARMv7</button>
+<button class="tablink" onclick="selectBook('STM-32', this, 'rgb(0,39,76)')">STM-32</button>
+<button class="tablink" onclick="selectBook('Old_Textbooks', this, 'rgb(0,39,76)')">Old Textbooks</button>
 <div id="Math425" class="tabcontent">
     <h3>Math 425 Textbook</h3>
-    <iframe src="https://austinccumich.github.io/Textbooks/Textbook425.pdf" width="100%" height="100%">
+    <iframe src="https://drive.google.com/file/d/1jAgUSqntuVa061vJ56FpKnzVLF51mAf4/preview" width="100%" height="90%" allow="autoplay">
     </iframe>
 </div>
 <div id="ARMv7" class="tabcontent">
     <h3>ARMv7 Architecture Reference Manual</h3>
-    <iframe src="https://austinccumich.github.io/Textbooks/DDI0403E_e_armv7m_arm.pdf" width="100%" height="100%">
+    <iframe src="https://drive.google.com/file/d/1j14lrKUoS65dIZz-ftBsQb2xz0kDtdJT/preview" width="100%" height="90%" allow="autoplay"></iframe>
     </iframe>
 </div>
 <div id="STM-32" class="tabcontent">
     <h3>STM-32 Reference Manual</h3>
-    <iframe src="https://austinccumich.github.io/Textbooks/dm00310109-stm32l4-series-advanced-armbased-32bit-mcus-stmicroelectronics.pdf" width="100%" height="100%">
+    <iframe src="https://drive.google.com/file/d/1j5kqk_zcn15t7GXrJpDSmbRWIEyO620n/preview" width="100%" height="90%" allow="autoplay">
     </iframe>
 </div>
 <div id="Old_Textbooks" class="tabcontent">
     <h3>Old Textbooks Page Link</h3>
-    <button onclick="window.open('https://austinccumich.github.io/old_textbooks.html','_blank')">Old Textbooks Here</button>
+    <button onclick="window.open('https://austinccumich.github.io/old_textbooks.html')">Old Textbooks Here</button>
 </div>
 
 <script>
