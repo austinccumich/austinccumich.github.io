@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<style type="text/css">
+	<!--PAGE FORMATTING-->
+	.brsmol {
+		display: block;
+		margin-bottom: 1em;
+	}
+	.brmed {
+		display: block;
+		margin-bottom: 3em;
+	}
+	.brlarge {
+		display: block;
+		margin-bottom: 6em;
+	}
+	.center {
+		text-align: center;
+		color:rgb(255,203,5);
+	}
+	.background{
+		background: rgb(0,39,76);
+	}
+	<!--Button Classes-->
+	.btn-neededForSomeUnknownReason {
+		text-align: center;
+		font-size: 20px;
+		color: rgb(255,203,5);
+		padding: 10px 12px;
+		border-radius: 8px;
+		border-width: 2px;
+		border-style: solid;
+		background-color: #cc0000;
+		border-color: #ff8080;
+		
+	}
+		.btn-reddy:hover{
+			background-color: #ff8080; 
+		}
+	.btn-yellow {
+		text-align: center;
+		font-size: 20px;
+		color: rgb(0,39,76);
+		padding: 10px 12px;
+		border-radius: 8px;
+		border-width: 2px;
+		border-style: solid;
+		background-color: #ff9900;
+		border-color: #ffff4d;
+		
+	}
+		.btn-yellow:hover{
+			background-color: #ffff4d; 
+		}
+	.btn-blue {
+		text-align: center;
+		font-size: 15px;
+		color: rgb(255,203,5);
+		padding: 6px 10px;
+		border-radius: 6px;
+		border-width: 2px;
+		border-style: solid;
+		background-color: #1a75ff;
+		border-color: #99c2ff;
+		
+	}
+		.btn-blue:hover{
+			background-color: #99c2ff; 
+		}
+    .btn-green {
+		text-align: center;
+		font-size: 15px;
+		color: rgb(255,203,5);
+		padding: 6px 10px;
+		border-radius: 6px;
+		border-width: 2px;
+		border-style: solid;
+		background-color: #2eaa2e;
+		border-color: #99ff99;
+		
+	}
+		.btn-green:hover{
+			background-color: #99ff99; 
+		}
+	.btn-red {
+		text-align: center;
+		font-size: 15px;
+		color: rgb(255,203,5);
+		padding: 6px 10px;
+		border-radius: 6px;
+		border-width: 2px;
+		border-style: solid;
+		background-color: #cc0000;
+		border-color: #ff8080;
+		
+	}
+		.btn-red:hover{
+			background-color: #ff8080; 
+		}
+	.btn-grey{
+		text-align: center;
+		font-size: 15px;
+		color: rgb(255,203,5);
+		padding: 6px 10px;
+		border-radius: 6px;
+		border-width: 2px;
+		border-style: solid;
+		background-color: #595959;
+		border-color: #cccccc;
+	}
+		.btn-grey:hover{
+			background-color: #cccccc; 
+		}
+</style>
+<head>
+  <title>Austin's School</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+</head>
+
+<body class="background">
+<span class="brlarge"></span>
+<div class="center background">
+	<h1 style="font-size: 60px;" class="center background">Dashboard</h1>
+	<span class="brsmol"></span>
+	<h2 class="center">General Links</h2>
+	<div class="w3-bar">
+		<button class="btn-yellow" onclick="window.open('https://umich.instructure.com/','_blank')">Canvas</button>
+		<button class="btn-yellow" onclick="window.open('https://drive.google.com/drive/my-drive','_blank')">Google Drive</button>
+		<button class="btn-yellow" onclick="window.open('https://www.gradescope.com/','_blank')">Gradescope</button>
+		<button class="btn-yellow" onclick="window.open('https://github.com/','_blank')">GitHub</button>
+		<button class="btn-yellow" onclick="window.open('https://austinccumich.github.io/textbooks.html','_blank')">Textbooks</button>
+	</div>
+	<span class="brmed"></span>
+	<div class="container">
+        <div class="row">
+            <div class="col-sm-3">
+            <h2>EECS 388: </h2><h4>Intro to Comp Security</h4>
+                <button class="btn-blue" onclick="window.open('https://EECS388.org','_blank')">Website</button><br>
+                <button class="btn-blue" onclick="window.open('https://piazza.com/class/l6tfp33hegy5ye/','_blank')">Piazza</button><br>
+                <button class="btn-blue" onclick="window.open('https://umich.instructure.com/courses/546166/external_tools/46404','_blank')">Lecture</button><br>
+                <button class="btn-blue" onclick="window.open('https://umich.instructure.com/courses/546166/quizzes','_blank')">Quizzes</button><br>
+                <button class="btn-blue" onclick="window.open('https://oh.eecs.umich.edu/courses/eecs388','_blank')">Office Hours</button>
+            </div>
+            <div class="col-sm-3">
+                <h2>EECS 473:</h2> <h4>Adv. Embedded Systems</h4>        
+                <button class="btn-grey" onclick="window.open('https://www.eecs.umich.edu/courses/eecs473/index.html','_blank')">Website</button><br>
+                <button class="btn-grey" onclick="window.open('https://piazza.com/class/l7806qwmjd9132','_blank')">Piazza</button><br>
+                <button class="btn-grey" onclick="window.open('https://www.eecs.umich.edu/courses/eecs473/hw.html','blank')">Assignments</button><br>
+                <button class="btn-grey" onclick="window.open('https://oh.eecs.umich.edu/courses/eecs473','_blank')">Office Hours</button><br>
+                <button class="btn-grey" onclick="window.open('https://www.eecs.umich.edu/courses/eecs473/overview.html','_blank')">Syllabus</button>
+            </div>
+            <div class="col-sm-3">
+                <h2>TECHCOMM 496: </h2><h4>Adv. Tech Comm</h4>
+                <button class="btn-green" onclick="window.open('https://umich.instructure.com/courses/546846','_blank')">Course Info</button><br>
+                <button class="btn-green" onclick="window.open('https://piazza.com/class/ksklvhjp7uf50f','_blank')">Piazza</button><br>
+                <button class="btn-green" onclick="window.open('https://umich.instructure.com/courses/546846/modules','blank')">Homework</button><br>
+                <button class="btn-green" onclick="window.open('https://umich.instructure.com/courses/546846/files','_blank')">Files</button><br>
+                <button class="btn-green" onclick="window.open('https://docs.google.com/document/d/10jwlZEYZvaO93GIuN8aqyVo9wr_j65k9wmrGtStU5dM/view','_blank')">Syllabus</button>
+            </div>
+            <div class="col-sm-3">
+                <h2 class="center background">EECS 496: </h2><h4>Major Design/Prof</h4>
+                <button class="btn-red" onclick="window.open('https://umich.instructure.com/courses/508672','_blank')">Course Schedule</button><br>
+                <button class="btn-red" onclick="window.open('https://piazza.com/class/l7juv6wcitzt','_blank')">Piazza</button><br>
+                <button class="btn-red" onclick="window.open('https://umich.instructure.com/courses/547895/assignments','_blank')">Homework</button><br>
+                <button class="btn-red" onclick="window.open('https://umich.instructure.com/courses/547895/quizzes','_blank')">Quizzes</button><br>
+                <button class="btn-red" onclick="window.open('https://umich.instructure.com/courses/547895/assignments/syllabus','_blank')">Syllabus</button><br>
+            </div>
+            
+        </div>
+        <span class="brmed"></span>
+        <div class=row>
+            <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&bgcolor=%234285F4&ctz=America%2FNew_York&title=Winter%202022&showTz=0&showCalendars=0&showTabs=1&showDate=0&showNav=1&mode=WEEK&showPrint=0&showTitle=0&src=YXVzdGluY2NAdW1pY2guZWR1&src=Y192bHNwcW1qdjZrb2ZrNW9sZjlxOTd2OXI3NEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&color=%23F09300&color=%237CB342" style="border-width:0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+        </div>
+	</div>
+</div>
+</body>
+</html>
