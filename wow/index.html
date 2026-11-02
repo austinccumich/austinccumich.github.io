@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WoW Harvester | Austin</title>
+  <link rel="stylesheet" href="css/wow.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="back-link" href="../">&larr; Back to main site</a>
+    <h1>WoW Harvester</h1>
+    <p class="tagline">Our group's World of Warcraft stats and weekly Chum Commendations.</p>
+    <p class="backend-status" id="status-text">Checking backend...</p>
+
+    <nav class="main-nav" role="tablist" aria-label="Sections">
+      <a href="#players" class="main-tab" role="tab" data-panel="players">Player Status</a>
+      <a href="#commendations" class="main-tab" role="tab" data-panel="commendations">Chum Commendations</a>
+      <a href="#search" class="main-tab" role="tab" data-panel="search">Search</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- 1. Player Status: the group's tracked characters -->
+    <section class="panel" id="panel-players" role="tabpanel" hidden>
+      <div class="panel-head">
+        <h2>Player Status</h2>
+        <p class="muted" id="players-sub">This week's numbers for our group.</p>
+      </div>
+      <div class="player-grid" id="player-grid"></div>
+    </section>
+
+    <!-- 2. Chum Commendations: this week by default, earlier weeks from the picker -->
+    <section class="panel" id="panel-commendations" role="tabpanel" hidden>
+      <div class="panel-head">
+        <h2>Chum Commendations</h2>
+        <label class="inline">Week
+          <select id="week-select"></select>
+        </label>
+      </div>
+      <p class="muted" id="awards-sub"></p>
+      <div class="award-grid" id="award-grid"></div>
+      <div class="two-col">
+        <div class="card">
+          <h3>Everyone's week</h3>
+          <ul class="standings plain" id="everyone"></ul>
+        </div>
+        <div class="card">
+          <h3>🌱 Play activity</h3>
+          <ol class="standings" id="activity"></ol>
+          <p class="hint">A session = one logout seen by the bot. Blizzard doesn't share hours played.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Search: look up any character -->
+    <section class="panel" id="panel-search" role="tabpanel" hidden>
+      <div class="card" id="lookup">
+        <h2>Character search</h2>
+        <form id="lookup-form">
+          <label>Game
+            <select name="game">
+              <option value="classic">Classic (Progression)</option>
+              <option value="forever">WoW Forever</option>
+              <option value="era">Classic Era</option>
+              <option value="anniversary">Classic Anniversary</option>
+              <option value="retail">Retail</option>
+            </select>
+          </label>
+          <label>Region
+            <select name="region">
+              <option value="us">US</option>
+              <option value="eu">EU</option>
+              <option value="kr">KR</option>
+              <option value="tw">TW</option>
+            </select>
+          </label>
+          <label>Realm
+            <input name="realm" type="text" placeholder="e.g. Arugal (AU)" required>
+          </label>
+          <label>Character
+            <input name="character" type="text" placeholder="e.g. Raxxedm" required>
+          </label>
+          <button type="submit">Look up</button>
+        </form>
+        <div id="lookup-result" class="result" hidden></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Character data from Blizzard's API. World of Warcraft and Blizzard Entertainment are trademarks of Blizzard Entertainment, Inc. This site is not affiliated with Blizzard.</p>
+  </footer>
+
+  <script src="js/wow.js"></script>
+</body>
+</html>
