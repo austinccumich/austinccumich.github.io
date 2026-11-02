@@ -6,7 +6,7 @@
 //  - page opened from localhost / 127.0.0.1 (docker compose "site" service):
 //    the local backend at http://localhost:8787
 //  - anywhere else (the live github.io site): PRODUCTION_API, once deployed
-const PRODUCTION_API = null; // e.g. "https://wow-harvester-api.<subdomain>.workers.dev"
+const PRODUCTION_API = "https://wow-harvester-api.ausinater.workers.dev";
 const LOCAL_API = "http://localhost:8787";
 const IS_LOCAL = ["localhost", "127.0.0.1"].includes(location.hostname);
 const API_BASE = IS_LOCAL ? LOCAL_API : PRODUCTION_API;
