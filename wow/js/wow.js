@@ -96,7 +96,7 @@ function showCharacter(c, lookup) {
   result.append(dl);
 
   if (!c.metrics) {
-    result.append(el("p", "Weekly stats appear once this character is tracked (/track in Discord).", "hint"));
+    result.append(el("p", "Weekly stats appear once this character is tracked (/wowtrack in Discord).", "hint"));
   }
 
   const btn = el("button", "View lifetime stats", "secondary");
@@ -332,7 +332,7 @@ function playerCard(c, wk, holding) {
 function emptySlot() {
   const card = el("article", undefined, "player-card empty");
   card.append(el("h3", "Open slot"));
-  card.append(el("p", "Add a character with /track in Discord.", "muted"));
+  card.append(el("p", "Add a character with /wowtrack in Discord.", "muted"));
   return card;
 }
 
