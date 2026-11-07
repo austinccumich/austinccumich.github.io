@@ -5,8 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WoW Harvester | Austin</title>
   <link rel="stylesheet" href="css/wow.css">
+  <link rel="stylesheet" href="css/site-switch.css">
 </head>
 <body>
+  <nav class="site-switch" aria-label="WoW pages">
+    <a href="./" aria-current="page">WoW Harvester</a>
+    <a href="draft/">Character Draft</a>
+  </nav>
   <header class="site-header">
     <a class="back-link" href="../">&larr; Back to main site</a>
     <h1>WoW Harvester</h1>
@@ -60,8 +65,8 @@
         <form id="lookup-form">
           <label>Game
             <select name="game">
+              <option value="forever" selected>WoW Forever</option>
               <option value="classic">Classic (Progression)</option>
-              <option value="forever">WoW Forever</option>
               <option value="era">Classic Era</option>
               <option value="anniversary">Classic Anniversary</option>
               <option value="retail">Retail</option>
@@ -75,11 +80,11 @@
               <option value="tw">TW</option>
             </select>
           </label>
-          <label>Realm
-            <input name="realm" type="text" placeholder="e.g. Arugal (AU)" required>
+          <label><span id="realm-label">Surname</span>
+            <input name="realm" type="text" placeholder="e.g. Stormbrew">
           </label>
           <label>Character
-            <input name="character" type="text" placeholder="e.g. Raxxedm" required>
+            <input name="character" type="text" placeholder="e.g. Mezric" required>
           </label>
           <button type="submit">Look up</button>
         </form>

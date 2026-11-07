@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2026 Forever Draft Board</title>
+<style>
+  :root { --bg:#0D1321; --panel:#1A2238; --panel2:#222C47; --gold:#E8B64C; --text:#F2EEE3; --muted:#9AA3B8; --red:#F26D6D; --green:#AAD372; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:Calibri, "Segoe UI", Arial, sans-serif; }
+  h1,h2,h3,.serif { font-family:"Bookman Old Style", Georgia, serif; }
+  header { display:flex; align-items:center; justify-content:space-between; padding:14px 24px; background:#141C30; }
+  header h1 { margin:0; color:var(--gold); font-size:26px; letter-spacing:1px; }
+  header .sub { color:var(--muted); font-size:14px; }
+  .btn { background:var(--panel2); color:var(--text); border:1px solid #3a4566; border-radius:8px; padding:8px 14px; font-size:14px; cursor:pointer; }
+  .btn:hover { border-color:var(--gold); }
+  .btn.gold { background:var(--gold); color:#1a1300; border-color:var(--gold); font-weight:bold; }
+  .btn:disabled { opacity:.4; cursor:not-allowed; }
+  main { display:grid; grid-template-columns: 420px 1fr; gap:20px; padding:20px 24px; }
+  .panel { background:var(--panel); border-radius:12px; padding:18px; }
+  .label { font-size:11px; letter-spacing:2px; color:var(--muted); font-weight:bold; text-transform:uppercase; margin:12px 0 6px; }
+  .clockwrap { text-align:center; }
+  .onclock { font-size:14px; letter-spacing:3px; color:var(--muted); font-weight:bold; }
+  .picker { font-family:"Bookman Old Style", Georgia, serif; font-size:34px; color:var(--gold); margin:4px 0; }
+  .pickno { color:var(--muted); font-size:14px; }
+  .clock { font-size:64px; font-weight:bold; font-variant-numeric:tabular-nums; margin:8px 0; }
+  .clock.low { color:var(--red); }
+  .row { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; }
+  .chip { padding:7px 11px; border-radius:18px; background:var(--panel2); border:1px solid #3a4566; cursor:pointer; font-size:16px; user-select:none; }
+  .chip.sel { border-color:var(--gold); background:#3a2f12; color:var(--gold); font-weight:bold; }
+  .chip.off { opacity:.3; cursor:not-allowed; text-decoration:line-through; }
+  .warn { background:#3a1c1c; border:1px solid var(--red); color:#ffd2d2; border-radius:8px; padding:8px 10px; font-size:13px; margin-top:10px; }
+  .info { color:var(--muted); font-size:13px; margin-top:8px; }
+  table { width:100%; border-collapse:separate; border-spacing:0 6px; }
+  th { text-align:left; font-size:12px; letter-spacing:2px; color:var(--muted); padding:0 12px; }
+  td { background:var(--panel2); padding:14px 12px; font-size:19px; }
+  td:first-child { border-radius:8px 0 0 8px; font-family:"Bookman Old Style", Georgia, serif; color:var(--gold); }
+  td:last-child { border-radius:0 8px 8px 0; }
+  tr.active td { background:#3a3220; }
+  .empty { color:#4c5677; }
+  .tag { font-size:11px; padding:2px 7px; border-radius:10px; border:1px solid currentColor; margin-left:6px; }
+  .log { max-height:220px; overflow:auto; font-size:15px; color:var(--muted); }
+  .order { display:grid; grid-template-columns: 70px 1fr; gap:8px; align-items:center; }
+  select { background:var(--panel2); color:var(--text); border:1px solid #3a4566; border-radius:8px; padding:8px; font-size:15px; width:100%; }
+  #overlay { position:fixed; inset:0; background:rgba(5,8,16,.94); display:none; align-items:center; justify-content:center; flex-direction:column; z-index:10; text-align:center; cursor:pointer; }
+  #overlay.show { display:flex; }
+  #overlay .big { font-family:"Bookman Old Style", Georgia, serif; font-size:72px; color:var(--gold); letter-spacing:3px; animation:pop .6s ease-out; }
+  #overlay .line { font-size:24px; color:var(--muted); margin-top:18px; max-width:900px; }
+  #overlay .who { font-family:"Bookman Old Style", Georgia, serif; font-size:44px; margin-top:10px; }
+  #overlay .what { font-family:"Bookman Old Style", Georgia, serif; font-size:54px; margin-top:10px; opacity:0; animation:fade .6s ease-out 1.6s forwards; }
+  #overlay .hint { position:absolute; bottom:24px; color:#4c5677; font-size:13px; }
+  @keyframes pop { from { transform:scale(.6); opacity:0 } to { transform:scale(1); opacity:1 } }
+  @keyframes fade { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:none } }
+  .cards { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
+  .pcard { background:var(--panel2); border-radius:12px; padding:18px; border:2px solid #3a4566; opacity:.15; transition:.4s; }
+  .pcard.on { opacity:1; }
+  .pcard .nm { font-family:"Bookman Old Style", Georgia, serif; font-size:24px; color:var(--gold); }
+  .pcard .cl { font-family:"Bookman Old Style", Georgia, serif; font-size:22px; margin:6px 0; }
+  .hidden { display:none !important; }
+  .tabs { display:flex; gap:8px; }
+</style>
+<link rel="stylesheet" href="../css/site-switch.css">
+</head>
+<body>
+<nav class="site-switch" aria-label="WoW pages">
+  <a href="../">WoW Harvester</a>
+  <a href="./" aria-current="page">Character Draft</a>
+</nav>
+<header>
+  <div><h1>THE 2026 FOREVER DRAFT</h1><div class="sub">House Chumming Draft Board. Commissioner of Fishing presiding.</div></div>
+  <div class="tabs">
+    <button class="btn" onclick="showView('draft')">Draft</button>
+    <button class="btn" onclick="showView('names')">Names</button>
+    <button class="btn" onclick="showView('final')">Final Board</button>
+    <button class="btn" onclick="openTrade()">Trade</button>
+    <button class="btn" onclick="undo()">Undo Last Pick</button>
+    <button class="btn" onclick="copyResults()">Copy Results</button>
+    <button class="btn" onclick="resetAll()">Reset</button>
+  </div>
+</header>
+
+<section id="setup" class="panel" style="margin:20px 24px;">
+  <h2 style="color:var(--gold);margin-top:0">Draft Lottery</h2>
+  <div class="info" style="margin-bottom:12px">Everyone types /roll 100. Lowest roll picks first. Set the order, then start the draft.</div>
+  <div id="orderSlots" class="order" style="max-width:420px"></div>
+  <div class="row" style="justify-content:flex-start;margin-top:14px">
+    <button class="btn gold" onclick="startDraft()">Start Round 1</button>
+  </div>
+  <div id="setupWarn" class="warn hidden"></div>
+</section>
+
+<main id="draftView" class="hidden">
+  <div class="panel">
+    <div class="clockwrap">
+      <div class="onclock" id="roundLabel">ROUND 1</div>
+      <div class="picker" id="picker">-</div>
+      <div class="pickno" id="pickNo"></div>
+      <div class="clock" id="clock">1:00</div>
+      <div class="row">
+        <button class="btn" onclick="startClock(60,'Shot clock')">Shot Clock 60</button>
+        <button class="btn" onclick="startClock(30,'Hot take')">Hot Take 30</button>
+        <button class="btn" onclick="stopClock()">Stop</button>
+      </div>
+      <div class="info" id="clockLabel">Shot clock</div>
+    </div>
+
+    <div id="r1">
+      <div class="label">Class</div><div class="chips" id="classChips"></div>
+      <div class="label">Spec</div><div class="chips" id="specChips"><span class="info">Pick a class first</span></div>
+      <div class="label">Race</div><div class="chips" id="raceChips"><span class="info">Pick a class first</span></div>
+      <div id="clause"></div>
+    </div>
+    <div id="r2" class="hidden">
+      <div class="label">Professions (pick two)</div><div class="chips" id="profChips"></div>
+      <div class="info">Two Chummings max per profession. Fishing is a birthright, not a pick.</div>
+    </div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn gold" id="lockBtn" onclick="lockPick()" disabled>Lock In Pick</button>
+    </div>
+  </div>
+
+  <div>
+    <div class="panel">
+      <table>
+        <thead><tr><th>Draftee</th><th>Character</th><th>Class</th><th>Spec</th><th>Race</th><th>Professions</th></tr></thead>
+        <tbody id="board"></tbody>
+      </table>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <div class="label" style="margin-top:0">Pick Log</div>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+</main>
+
+<section id="namesView" class="hidden" style="padding:20px 24px">
+  <div class="panel">
+    <h2 style="color:var(--gold);margin-top:0">Name the Chummings</h2>
+    <div class="info" style="margin-bottom:14px">Enter each character's first name from the Discord poll and name competition. Last name is locked. Names save as you type.</div>
+    <div id="nameRows" style="display:grid;grid-template-columns:1fr 1fr;gap:14px"></div>
+  </div>
+</section>
+
+<section id="finalView" class="hidden" style="padding:20px 24px">
+  <div class="row" style="justify-content:space-between;margin-bottom:16px">
+    <h2 style="color:var(--gold);margin:0">The Final Board</h2>
+    <div class="row"><button class="btn gold" onclick="revealNext()">Reveal Next Chumming</button><button class="btn" onclick="revealAll()">Reveal All</button></div>
+  </div>
+  <div class="cards" id="cards"></div>
+</section>
+
+<div id="trade" class="hidden" style="position:fixed;inset:0;background:rgba(5,8,16,.85);display:flex;align-items:center;justify-content:center;z-index:9">
+  <div class="panel" style="width:460px">
+    <h2 style="color:var(--gold);margin-top:0">Commissioner-Approved Trade</h2>
+    <div class="label">Chumming A</div><select id="tA"></select>
+    <div class="label">Chumming B</div><select id="tB"></select>
+    <div class="label">What moves</div>
+    <select id="tWhat"><option value="slot">Draft slots (swap remaining pick positions)</option><option value="r1">Round 1 results (class, spec, race)</option><option value="r2">Round 2 results (professions)</option></select>
+    <div class="label">IOU (for the record)</div><select id="tIou"><option>Carry through Deadmines</option><option>50 gold at level 40</option><option>Farm mats for one evening</option><option>First summon is free</option><option>Other (settled in voice)</option></select>
+    <div class="row" style="margin-top:16px;justify-content:flex-end"><button class="btn" onclick="closeTrade()">Cancel</button><button class="btn gold" onclick="doTrade()">Approve Trade</button></div>
+  </div>
+</div>
+
+<div id="overlay" onclick="closeOverlay()">
+  <div class="big">THE PICK IS IN</div>
+  <div class="line" id="ovLine"></div>
+  <div class="who" id="ovWho"></div>
+  <div class="what" id="ovWhat"></div>
+  <div class="hint">Click anywhere, then start the 30 second hot take</div>
+</div>
+
+<script>
+const DATA = {"PLAYERS":["Scott","Andrew","Donald","Austin","Miller","Nate"],"RACES":{"Human":{"tag":"The vanilla ice cream of races","racials":"Free PvP trinket, flat damage boost, spots stealthed Rogues"},"Dwarf":{"tag":"The only Alliance Shaman","racials":"Stoneform cleanse, damage boost, better treasure finding"},"Night Elf":{"tag":"Professional hide-and-seek champion","racials":"Shadowmeld, burst window, faster ghost run"},"Gnome":{"tag":"Small, explosive, owes everyone for Gnomeregan","racials":"Escape Artist, burst window, Engineering bonus"},"Skyborne":{"tag":"New high elf race. Costs $29.99 of your own money","racials":"Slow fall, mana sustain, small damage boosts"}},"CLASSES":[{"name":"Druid","color":"FF7C0A","icon":"GiBearFace","armor":"Leather","resource":"Mana, Energy, Rage","roles":"Tank, Healer, Melee, Ranged","pitch":"The Swiss Army knife that is also a bear. Every spec got reworked for Forever so it fits its role.","specs":[{"name":"Balance","role":"Ranged DPS","plays":"Space owl. Moonfire and Starfire from range.","comp":"Yoda. Small, green energy, hard to take seriously until it works.","flag":"Will be called a chicken. Will deserve it."},{"name":"Feral","role":"Tank / Melee","plays":"Cat for damage, bear for tanking, swaps on the fly.","comp":"Bruce Banner. Calm guy, turns into a large angry animal.","flag":"Spends half the pull in travel form going the wrong way."},{"name":"Restoration","role":"Healer","plays":"Heals over time. HoTs on everyone, all the time.","comp":"Your mom packing snacks before the road trip.","flag":"Pre-HoTs the tank, then blames the tank."}],"races":[{"race":"Night Elf","cap":"The original tree hugger. Was a bear before it was cool."},{"race":"Skyborne","cap":"Paid $29.99 to be a chicken in the sky."}],"pairs":{"level":"Leatherworking + Skinning","end":"Herbalism + Alchemy"}},{"name":"Hunter","color":"AAD372","icon":"GiBowArrow","armor":"Mail","resource":"Mana","roles":"Ranged, Melee","pitch":"Pet, bow, traps. New for Forever: Lone Wolf lets you go petless, and Survival is full melee.","specs":[{"name":"Beast Mastery","role":"Ranged DPS","plays":"The pet does the work. You supervise.","comp":"Every dog parent at the park.","flag":"Pet Growl left on in the dungeon. Every dungeon."},{"name":"Marksmanship","role":"Ranged DPS","plays":"Big shots from max range. Aimed Shot carries.","comp":"Legolas, minus the hair care routine.","flag":"Hits Need on every weapon. Including the staff."},{"name":"Survival","role":"Melee DPS","plays":"Spear in hand, traps down, no pet required.","comp":"Bear Grylls. Will eat the boss if needed.","flag":"Pulls the whole room and blames the pet that no longer exists."}],"races":[{"race":"Human","cap":"New for Forever. Bought a bow in Goldshire and called it a career."},{"race":"Dwarf","cap":"Brings a gun to every fight. Brings a beer to every gunfight."},{"race":"Night Elf","cap":"Has tamed every cat in Teldrassil. Has named them all."},{"race":"Skyborne","cap":"Shoots from max range, slow falls off every cliff."}],"pairs":{"level":"Leatherworking + Skinning","end":"Engineering + Mining"}},{"name":"Mage","color":"3FC7EB","icon":"GiFireball","armor":"Cloth","resource":"Mana","roles":"Ranged","pitch":"Free food and water vending machine with a Fireball attached. Teleports included.","specs":[{"name":"Arcane","role":"Ranged DPS","plays":"New Arcane Blast. Stack it, burst, manage mana.","comp":"A guy at the casino with your mana bar.","flag":"Out of mana. Again. Drinking. Again."},{"name":"Fire","role":"Ranged DPS","plays":"New Hot Streak. Crits turn into instant Pyroblasts.","comp":"Michael Bay. Explosions first, plot later.","flag":"Pulls threat off the tank, Ice Blocks, watches you die."},{"name":"Frost","role":"Ranged DPS","plays":"New Ice Lance and Fingers of Frost. Slows and control.","comp":"Elsa. Will not let it go.","flag":"AoE pull goes wrong. Somehow it was the tank's fault."}],"races":[{"race":"Human","cap":"Stormwind college grad. Still paying off the loans."},{"race":"Gnome","cap":"Three feet tall. Ten feet of Fireball."},{"race":"Skyborne","cap":"High elf mage. The most expected combo in Warcraft history."}],"pairs":{"level":"Tailoring + Enchanting","end":"Engineering + Mining"}},{"name":"Paladin","color":"F48CBA","icon":"GiHolySymbol","armor":"Plate","resource":"Mana","roles":"Tank, Healer, Melee","pitch":"Plate, blessings, and a bubble. Judgement no longer eats your Seal, and Holy Strike is new.","specs":[{"name":"Holy","role":"Healer","plays":"Big heals in full plate. Hard to kill.","comp":"A lifeguard wearing a suit of armor.","flag":"Bubble Hearths the second things look bad."},{"name":"Protection","role":"Tank","plays":"Holy damage tank. Shield up, Consecrate (now nerfed).","comp":"Captain America, with more buffs to hand out.","flag":"Asks for Kings, gets Might, writes a paragraph about it."},{"name":"Retribution","role":"Melee DPS","plays":"Big two-hander, Seals, Judgement, Holy Strike.","comp":"A youth pastor who lifts.","flag":"Rolls on every caster item. \"It's for my off-spec.\""}],"races":[{"race":"Human","cap":"Light-blessed and very loud about it."},{"race":"Dwarf","cap":"Holy hammer. Ale breath. Zero regrets."}],"pairs":{"level":"Blacksmithing + Mining","end":"Engineering + Mining (Holy: Alchemy + Herbalism)"}},{"name":"Priest","color":"E8E8E8","icon":"GiHealing","armor":"Cloth","resource":"Mana","roles":"Healer, Ranged","pitch":"Heals, shields, and shadow magic. Every race gets its own priest spells in Forever.","specs":[{"name":"Discipline","role":"Healer","plays":"Shields and damage prevention before it lands.","comp":"A bouncer who stops the fight before it starts.","flag":"Posts absorb numbers in party chat after every pull."},{"name":"Holy","role":"Healer","plays":"Pure big heals. The classic healer.","comp":"An ER nurse on a triple shift.","flag":"Will let you die once to teach you a lesson."},{"name":"Shadow","role":"Ranged DPS","plays":"DoTs, Mind Flay, and Mind Control.","comp":"Darth Vader, if he had a cloth robe and no helmet.","flag":"Mind Controls a mob off a cliff and calls it strategy."}],"races":[{"race":"Human","cap":"Feedback burns your mana if you hit them. Petty and holy."},{"race":"Dwarf","cap":"Heals you, then roots the mob with Chastise. Full service."},{"race":"Night Elf","cap":"Starshards. Shooting stars at people who deserve it."},{"race":"Gnome","cap":"New for Forever. Contingency Plan is a gnome's middle name."}],"pairs":{"level":"Tailoring + Enchanting","end":"Tailoring + Engineering"}},{"name":"Rogue","color":"FFF468","icon":"GiDaggers","armor":"Leather","resource":"Energy, Combo Points","roles":"Melee","pitch":"Stealth, stabs, and stuns. Each spec has its own identity now, and Rogues can use one-handed axes.","specs":[{"name":"Assassination","role":"Melee DPS","plays":"Poison damage focus. Stack it and watch them melt.","comp":"Walter White, but with daggers.","flag":"Forgot to reapply poisons. Again."},{"name":"Combat","role":"Melee DPS","plays":"Upfront fighting. Blade Flurry and big swings.","comp":"John Wick. Not subtle, very effective.","flag":"Sap? Never heard of her."},{"name":"Subtlety","role":"Melee DPS","plays":"Bleeds, stealth tricks, and ambushes.","comp":"Batman. Disappears mid-conversation.","flag":"Vanishes during the wipe and claims they saved the run."}],"races":[{"race":"Human","cap":"Perception spots other Rogues. Snitch."},{"race":"Dwarf","cap":"Stoneform wipes the bleeds. A sturdy little burglar."},{"race":"Night Elf","cap":"Shadowmeld plus stealth. You will never find them for the dungeon."},{"race":"Gnome","cap":"Kneecap height. Literally."},{"race":"Skyborne","cap":"Walk on Air means the gank comes from above."}],"pairs":{"level":"Leatherworking + Skinning","end":"Engineering + Mining"}},{"name":"Shaman","color":"2E8BFF","icon":"GiLightningTrio","armor":"Mail","resource":"Mana","roles":"Tank, Healer, Melee, Ranged","pitch":"Totems, lightning, and Windfury. Lava Burst, Maelstrom, and Riptide got big buffs, and Enhancement can tank.","specs":[{"name":"Elemental","role":"Ranged DPS","plays":"Lightning Bolt and Lava Burst from range.","comp":"Thor, shorter and with a beard braid.","flag":"Drops totems where nobody is standing."},{"name":"Enhancement","role":"Melee / Tank","plays":"Windfury, Maelstrom, and Rockbiter tanking.","comp":"A slot machine with an axe.","flag":"One Windfury crit and they think they are the main character."},{"name":"Restoration","role":"Healer","plays":"Chain Heal and Riptide. Totems for the group.","comp":"A plumber who also does electrical.","flag":"Drops Earthbind in the dungeon for no reason."}],"races":[{"race":"Dwarf","cap":"Congrats, you're a Dwarf. No choice. Beard mandatory."}],"pairs":{"level":"Leatherworking + Skinning","end":"Alchemy + Herbalism"}},{"name":"Warlock","color":"8788EE","icon":"GiPentacle","armor":"Cloth","resource":"Mana","roles":"Ranged","pitch":"Demons, curses, and DoTs. Gets a free mount and will summon you. For a fee.","specs":[{"name":"Affliction","role":"Ranged DPS","plays":"DoTs everywhere. New channel buffs your DoTs.","comp":"A group chat drama that takes three weeks to finish.","flag":"Life Taps to 1 HP and asks the healer why."},{"name":"Demonology","role":"Ranged DPS","plays":"Pet-focused. Sacrifice the demon and keep it too.","comp":"A guy with a pit bull named Princess.","flag":"Voidwalker on autopilot, taunting off the tank."},{"name":"Destruction","role":"Ranged DPS","plays":"Shadow Bolt, new Incinerate, Bane of Havoc AoE.","comp":"A firework stand with no permit.","flag":"Four bags. All soul shards."}],"races":[{"race":"Human","cap":"Summons demons. Still says \"excuse me\" in Stormwind."},{"race":"Gnome","cap":"Smallest body, biggest demon. The imp is taller."}],"pairs":{"level":"Tailoring + Enchanting","end":"Tailoring + Herbalism (or Alchemy)"}},{"name":"Warrior","color":"C69B6D","icon":"GiCrossedAxes","armor":"Plate","resource":"Rage","roles":"Tank, Melee","pitch":"Charge first, think never. Forever adds a bigger rage pool, better AoE threat, and Weaponmaster.","specs":[{"name":"Arms","role":"Melee DPS","plays":"Big two-hander, Mortal Strike, crushing hits.","comp":"An offensive lineman with a sword.","flag":"Charges in before the healer finishes drinking."},{"name":"Fury","role":"Melee DPS","plays":"Dual wield. Rage in, damage out. Flurry got nerfed.","comp":"A Michigan winter driver with no brakes.","flag":"Pops Recklessness on trash. Dies on trash."},{"name":"Protection","role":"Tank","plays":"Shield, taunt, and now better AoE threat.","comp":"A bouncer who also pays the bar tab.","flag":"Repair bill costs more than the rest of the group's gear."}],"races":[{"race":"Human","cap":"Will to Survive. Also the will to charge into everything."},{"race":"Dwarf","cap":"Short, angry, plate-wearing fire hydrant."},{"race":"Night Elf","cap":"Seven feet tall. Hides with Shadowmeld anyway."},{"race":"Gnome","cap":"The funniest thing in the game, and it knows it."},{"race":"Skyborne","cap":"Flies into battle. Slowly. Gently. With slow fall."}],"pairs":{"level":"Blacksmithing + Mining","end":"Engineering + Mining"}}],"PROFESSIONS":[{"name":"Alchemy","type":"Crafting","icon":"GiPotionBall","what":"Potions, elixirs, flasks.","joke":"Sells potions out of a trench coat."},{"name":"Blacksmithing","type":"Crafting","icon":"GiAnvil","what":"Weapons, plate and mail.","joke":"Hits things for a living, even off the clock."},{"name":"Enchanting","type":"Gather + Craft","icon":"GiMagicSwirl","what":"Disenchants gear, enchants, wands.","joke":"Turns your greens into dust and your gold into nothing."},{"name":"Engineering","type":"Crafting","icon":"GiGears","what":"Bombs, gadgets, guns, toys.","joke":"Will blow up the boss. Will also blow up themselves."},{"name":"Herbalism","type":"Gathering","icon":"GiHerbsBundle","what":"Picks herbs.","joke":"Stops mid-pull to pick a flower."},{"name":"Leatherworking","type":"Crafting","icon":"GiLeatherArmor","what":"Leather and mail armor.","joke":"Sews pants out of whatever you just killed."},{"name":"Mining","type":"Gathering","icon":"GiMining","what":"Ore, stone, gems, smelting.","joke":"Rocks. A lot of rocks."},{"name":"Skinning","type":"Gathering","icon":"GiAnimalHide","what":"Leather and hides.","joke":"Starts skinning before the mob finishes dying."},{"name":"Tailoring","type":"Crafting","icon":"GiSewingNeedle","what":"Cloth armor and bags.","joke":"Everyone's best friend for 20 minutes. Bags."}]};
+const TANKS = { "Druid":["Feral"], "Paladin":["Protection"], "Warrior":["Protection"], "Shaman":["Enhancement"] };
+const HEALERS = { "Druid":["Restoration"], "Paladin":["Holy"], "Priest":["Discipline","Holy"], "Shaman":["Restoration"] };
+const ORD = ["first","second","third","fourth","fifth","sixth","seventh","eighth","ninth","tenth","eleventh","twelfth"];
+const CLS = Object.fromEntries(DATA.CLASSES.map(c => [c.name, c]));
+let S = blank();
+let sel = {};
+let timer = null, remaining = 60;
+
+function blank() { return { order: [], started:false, picks: [], players: Object.fromEntries(DATA.PLAYERS.map(p => [p, { cls:null, spec:null, race:null, profs:[] }])), log: [], revealed: 0 }; }
+function save() { try { localStorage.setItem("foreverDraft", JSON.stringify(S)); } catch(e) {} }
+function load() { try { const v = localStorage.getItem("foreverDraft"); if (v) S = JSON.parse(v); } catch(e) {} }
+
+function seq() { const o = S.order; return o.concat(o.slice().reverse()); }
+function pickIndex() { return S.picks.length; }
+function currentPlayer() { return seq()[pickIndex()]; }
+function round() { return pickIndex() < 6 ? 1 : 2; }
+function isTank(c, s) { return (TANKS[c]||[]).includes(s); }
+function isHealer(c, s) { return (HEALERS[c]||[]).includes(s); }
+function col(c) { return "#" + CLS[c].color; }
+
+function renderSetup() {
+  const box = document.getElementById("orderSlots"); box.innerHTML = "";
+  for (let i = 0; i < 6; i++) {
+    const l = document.createElement("div"); l.className = "label"; l.style.margin = 0; l.textContent = "Pick " + (i+1);
+    const s = document.createElement("select"); s.id = "slot" + i;
+    s.innerHTML = '<option value="">Choose</option>' + DATA.PLAYERS.map(p => `<option ${S.order[i]===p?"selected":""}>${p}</option>`).join("");
+    box.append(l, s);
+  }
+}
+function startDraft() {
+  const o = [...Array(6).keys()].map(i => document.getElementById("slot"+i).value);
+  const w = document.getElementById("setupWarn");
+  if (o.includes("") || new Set(o).size !== 6) { w.textContent = "Each Chumming needs exactly one slot."; w.classList.remove("hidden"); return; }
+  S.order = o; S.started = true; S.log.push("Draft order: " + o.join(", ")); save(); showView("draft");
+}
+
+function showView(v) {
+  if (!S.started && v !== "names") { document.getElementById("setup").classList.remove("hidden"); document.getElementById("draftView").classList.add("hidden"); document.getElementById("finalView").classList.add("hidden"); renderSetup(); return; }
+  document.getElementById("setup").classList.add("hidden");
+  document.getElementById("draftView").classList.toggle("hidden", v !== "draft");
+  document.getElementById("finalView").classList.toggle("hidden", v !== "final");
+  document.getElementById("namesView").classList.toggle("hidden", v !== "names");
+  if (v === "names") renderNames();
+  render();
+}
+
+function render() {
+  sel = sel || {};
+  const done = pickIndex() >= 12, p = currentPlayer(), r = round();
+  document.getElementById("roundLabel").textContent = done ? "DRAFT COMPLETE" : (r === 1 ? "ROUND 1  |  CLASS, SPEC, RACE" : "ROUND 2  |  PROFESSIONS");
+  document.getElementById("picker").textContent = done ? "Go to the Final Board" : p;
+  document.getElementById("pickNo").textContent = done ? "" : `Pick ${pickIndex()+1} of 12` + (pickIndex() === 11 ? "  |  Mr. Irrelevant pick" : "");
+  document.getElementById("r1").classList.toggle("hidden", done || r !== 1);
+  document.getElementById("r2").classList.toggle("hidden", done || r !== 2);
+  document.getElementById("lockBtn").classList.toggle("hidden", done);
+  if (!done && r === 1) renderR1(); if (!done && r === 2) renderR2();
+  renderBoard(); renderCards();
+  document.getElementById("log").innerHTML = S.log.slice().reverse().map(x => `<div>${x}</div>`).join("");
+}
+
+function renderR1() {
+  const taken = Object.values(S.players).map(x => x.cls).filter(Boolean);
+  const cc = document.getElementById("classChips"); cc.innerHTML = "";
+  DATA.CLASSES.forEach(c => {
+    const off = taken.includes(c.name);
+    const el = chip(c.name, sel.cls === c.name, off, () => { sel = { cls:c.name }; if (c.races.length === 1) sel.race = c.races[0].race; render(); });
+    if (!off) el.style.color = "#" + c.color; cc.append(el);
+  });
+  const sc = document.getElementById("specChips"), rc = document.getElementById("raceChips");
+  if (sel.cls) {
+    sc.innerHTML = ""; CLS[sel.cls].specs.forEach(s => sc.append(chip(`${s.name} (${s.role})`, sel.spec === s.name, false, () => { sel.spec = s.name; render(); })));
+    rc.innerHTML = ""; CLS[sel.cls].races.forEach(x => rc.append(chip(x.race, sel.race === x.race, false, () => { sel.race = x.race; render(); })));
+  } else { sc.innerHTML = rc.innerHTML = '<span class="info">Pick a class first</span>'; }
+  // Dungeon clause
+  const vals = Object.values(S.players).filter(x => x.cls);
+  const tank = vals.some(x => isTank(x.cls, x.spec)), heal = vals.some(x => isHealer(x.cls, x.spec));
+  const left = 6 - pickIndex(), need = (tank?0:1) + (heal?0:1);
+  let msg = `<div class="info">Tank drafted: <b style="color:${tank?'var(--green)':'var(--red)'}">${tank?"Yes":"No"}</b> &nbsp; Healer drafted: <b style="color:${heal?'var(--green)':'var(--red)'}">${heal?"Yes":"No"}</b></div>`;
+  if (need && left <= need) msg += `<div class="warn">Dungeon Clause in effect. This pick must be a ${!tank && !heal ? "tank or healer" : (!tank ? "tank" : "healer")}.</div>`;
+  document.getElementById("clause").innerHTML = msg;
+  document.getElementById("lockBtn").disabled = !(sel.cls && sel.spec && sel.race && clauseOk());
+}
+function clauseOk() {
+  const vals = Object.values(S.players).filter(x => x.cls);
+  const tank = vals.some(x => isTank(x.cls, x.spec)), heal = vals.some(x => isHealer(x.cls, x.spec));
+  const left = 6 - pickIndex(), need = (tank?0:1) + (heal?0:1);
+  if (!need || left > need) return true;
+  return (!tank && isTank(sel.cls, sel.spec)) || (!heal && isHealer(sel.cls, sel.spec));
+}
+function renderR2() {
+  const counts = {}; Object.values(S.players).forEach(x => x.profs.forEach(p => counts[p] = (counts[p]||0) + 1));
+  sel.profs = sel.profs || [];
+  const pc = document.getElementById("profChips"); pc.innerHTML = "";
+  DATA.PROFESSIONS.forEach(p => {
+    const full = (counts[p.name]||0) >= 2, on = sel.profs.includes(p.name);
+    pc.append(chip(`${p.name} (${2-(counts[p.name]||0)} left)`, on, full, () => {
+      if (on) sel.profs = sel.profs.filter(x => x !== p.name); else if (sel.profs.length < 2) sel.profs.push(p.name);
+      render();
+    }));
+  });
+  document.getElementById("lockBtn").disabled = sel.profs.length !== 2;
+}
+function chip(text, on, off, fn) {
+  const el = document.createElement("span"); el.className = "chip" + (on ? " sel" : "") + (off ? " off" : ""); el.textContent = text;
+  if (!off) el.onclick = fn; return el;
+}
+
+function renderBoard() {
+  const tb = document.getElementById("board"); const cur = currentPlayer();
+  tb.innerHTML = (S.order.length ? S.order : DATA.PLAYERS).map(n => {
+    const x = S.players[n];
+    const role = x.cls ? (isTank(x.cls,x.spec) ? '<span class="tag" style="color:#E8B64C">TANK</span>' : isHealer(x.cls,x.spec) ? '<span class="tag" style="color:#AAD372">HEALER</span>' : '<span class="tag" style="color:#9AA3B8">DPS</span>') : "";
+    return `<tr class="${n===cur && pickIndex()<12 ? "active":""}"><td>${n}</td>
+      <td>${x.charName ? x.charName + " Chumming" : '<span class="empty">Unnamed</span>'}</td>
+      <td>${x.cls ? `<b style="color:${col(x.cls)}">${x.cls}</b>` : '<span class="empty">-</span>'}</td>
+      <td>${x.spec ? x.spec + role : '<span class="empty">-</span>'}</td>
+      <td>${x.race || '<span class="empty">-</span>'}</td>
+      <td>${x.profs.length ? x.profs.join(" + ") : '<span class="empty">-</span>'}</td></tr>`;
+  }).join("");
+}
+function renderCards() {
+  const order = S.order.length ? S.order : DATA.PLAYERS;
+  document.getElementById("cards").innerHTML = order.map((n, i) => {
+    const x = S.players[n], c = x.cls ? col(x.cls) : "#3a4566";
+    return `<div class="pcard ${i < S.revealed ? "on" : ""}" style="border-color:${c}">
+      <div class="nm">${charName(n)}</div><div class="info" style="margin-top:2px">Drafted by ${n}</div>
+      <div class="cl" style="color:${c}">${x.race || "?"} ${x.cls || "?"}</div>
+      <div>${x.spec ? x.spec : "?"}</div>
+      <div class="info">${x.profs.length ? x.profs.join(" + ") + " + Fishing" : "Professions pending"}</div></div>`;
+  }).join("");
+}
+function charName(n) { const c = S.players[n].charName; return c ? c + " Chumming" : "Unnamed Chumming"; }
+function renderNames() {
+  const order = S.order.length ? S.order : DATA.PLAYERS;
+  const box = document.getElementById("nameRows"); box.innerHTML = "";
+  order.forEach(n => {
+    const x = S.players[n], c = x.cls ? col(x.cls) : "#9AA3B8";
+    const d = document.createElement("div"); d.style.cssText = "background:var(--panel2);border-radius:10px;padding:14px";
+    d.innerHTML = `<div class="label" style="margin-top:0">Drafted by ${n}</div>
+      <div style="color:${c};margin-bottom:8px">${x.cls ? `${x.race} ${x.cls} (${x.spec})` : "Not drafted yet"}</div>
+      <div style="display:flex;align-items:center;gap:10px"><input maxlength="12" placeholder="First name" value="${(x.charName||"").replace(/"/g,"&quot;")}"
+        style="flex:1;background:var(--bg);color:var(--text);border:1px solid #3a4566;border-radius:8px;padding:10px;font-size:20px;font-family:'Bookman Old Style',Georgia,serif">
+        <span class="serif" style="font-size:20px;color:var(--gold)">Chumming</span></div>`;
+    d.querySelector("input").oninput = e => { x.charName = e.target.value.trim(); save(); renderBoard(); renderCards(); };
+    box.append(d);
+  });
+}
+function revealNext() { S.revealed = Math.min(6, S.revealed + 1); save(); renderCards(); fanfare(); }
+function revealAll() { S.revealed = 6; save(); renderCards(); }
+
+function lockPick() {
+  const p = currentPlayer(), n = pickIndex(), x = S.players[p];
+  let what;
+  if (round() === 1) { x.cls = sel.cls; x.spec = sel.spec; x.race = sel.race; what = `${sel.race} ${sel.cls} (${sel.spec})`; S.picks.push({ p, r:1 }); }
+  else { x.profs = sel.profs.slice(); what = sel.profs.join(" + "); S.picks.push({ p, r:2 }); }
+  S.log.push(`Pick ${n+1}: ${p} selects ${what}`); sel = {}; save(); stopClock();
+  document.getElementById("ovLine").textContent = n === 11 ? "With the final pick in the 2026 Forever Draft, Mr. Irrelevant," : `With the ${ORD[n]} pick in the 2026 Forever Draft,`;
+  document.getElementById("ovWho").textContent = `${p} selects`;
+  const w = document.getElementById("ovWhat"); w.textContent = what; w.style.color = n < 6 ? col(x.cls) : "#F2EEE3";
+  w.style.animation = "none"; void w.offsetWidth; w.style.animation = "";
+  document.getElementById("overlay").classList.add("show"); fanfare(); render();
+}
+function closeOverlay() { document.getElementById("overlay").classList.remove("show"); }
+function undo() {
+  if (!S.picks.length) return; const last = S.picks.pop(), x = S.players[last.p];
+  if (last.r === 1) { x.cls = x.spec = x.race = null; } else { x.profs = []; }
+  S.log.push(`Undo: removed ${last.p}'s Round ${last.r} pick`); sel = {}; save(); render();
+}
+
+function openTrade() {
+  const opts = DATA.PLAYERS.map(p => `<option>${p}</option>`).join("");
+  document.getElementById("tA").innerHTML = opts; document.getElementById("tB").innerHTML = opts; document.getElementById("tB").selectedIndex = 1;
+  document.getElementById("trade").classList.remove("hidden");
+}
+function closeTrade() { document.getElementById("trade").classList.add("hidden"); }
+function doTrade() {
+  const g = id => document.getElementById(id).value; const a = g("tA"), b = g("tB"), w = g("tWhat"), iou = g("tIou"); if (a === b) return;
+  const A = S.players[a], B = S.players[b];
+  if (w === "slot") { const i = S.order.indexOf(a), j = S.order.indexOf(b); S.order[i] = b; S.order[j] = a; }
+  if (w === "r1") { ["cls","spec","race"].forEach(k => { const t = A[k]; A[k] = B[k]; B[k] = t; }); }
+  if (w === "r2") { const t = A.profs; A.profs = B.profs; B.profs = t; }
+  S.log.push(`TRADE: ${a} and ${b} swap ${w === "slot" ? "draft slots" : w === "r1" ? "Round 1 picks" : "professions"}. IOU: ${iou}`);
+  save(); closeTrade(); render(); fanfare();
+}
+
+function startClock(sec, label) {
+  stopClock(); remaining = sec; document.getElementById("clockLabel").textContent = label; tick();
+  timer = setInterval(() => { remaining--; tick(); if (remaining <= 0) { stopClock(); buzzer(); } }, 1000);
+}
+function stopClock() { if (timer) clearInterval(timer); timer = null; }
+function tick() { const c = document.getElementById("clock"); c.textContent = Math.floor(remaining/60) + ":" + String(Math.max(0,remaining%60)).padStart(2,"0"); c.classList.toggle("low", remaining <= 10); }
+
+let AC; function ac() { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} return AC; }
+function note(f, t, d, type="triangle", v=.18) { const a = ac(); if (!a) return; const o = a.createOscillator(), g = a.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(v, a.currentTime + t); g.gain.exponentialRampToValueAtTime(.001, a.currentTime + t + d); o.connect(g).connect(a.destination); o.start(a.currentTime + t); o.stop(a.currentTime + t + d + .05); }
+function fanfare() { [[523,0,.18],[659,.18,.18],[784,.36,.18],[1047,.54,.6]].forEach(n => note(...n)); }
+function buzzer() { note(110, 0, .8, "sawtooth", .2); }
+
+function copyResults() {
+  const lines = ["**THE 2026 FOREVER DRAFT: FINAL BOARD**"].concat((S.order.length ? S.order : DATA.PLAYERS).map(n => { const x = S.players[n]; return `${charName(n)} (${n}): ${x.race||"?"} ${x.cls||"?"} (${x.spec||"?"}), ${x.profs.length ? x.profs.join(" + ") : "?"} + Fishing`; }));
+  const t = lines.join("\n");
+  (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => S.log.push("Results copied to clipboard"), () => S.log.push("Copy failed. Results:\n" + t)).finally(render);
+}
+function resetAll() { if (!confirmReset()) return; S = blank(); sel = {}; save(); showView("draft"); }
+let resetArmed = false;
+function confirmReset() { if (resetArmed) { resetArmed = false; return true; } resetArmed = true; S.log.push("Click Reset again within 5 seconds to wipe the draft."); render(); setTimeout(() => resetArmed = false, 5000); return false; }
+
+load(); showView("draft");
+</script>
+</body>
+</html>

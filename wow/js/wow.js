@@ -27,6 +27,22 @@ function slugify(name) {
     .replace(/[\s-]+/g, "-");
 }
 
+// WoW Forever has no realms: characters are Name + Surname, and the backend's
+// realm segment carries the surname (lowercase, spaces as hyphens, accents kept).
+const slugSurname = (s) => s.trim().toLowerCase().replace(/\s+/g, "-");
+const slugPlace = (game, value) => (game === "forever" ? slugSurname(value) : slugify(value));
+const displayName = (c) => c.fullName ?? c.name ?? c.key;
+
+// Search form: the second field is "Surname" for Forever, "Realm" otherwise.
+function syncPlaceField() {
+  const forever = form.elements.game.value === "forever";
+  document.getElementById("realm-label").textContent = forever ? "Surname" : "Realm";
+  form.elements.realm.placeholder = forever ? "e.g. Stormbrew" : "e.g. Arugal (AU)";
+  form.elements.character.placeholder = forever ? "e.g. Mezric" : "e.g. Raxxedm";
+}
+form.elements.game.addEventListener("change", syncPlaceField);
+syncPlaceField();
+
 const fmt = (n) => (typeof n === "number" ? n.toLocaleString("en-US", { maximumFractionDigits: 1 }) : null);
 
 // Small helper to build elements without innerHTML (names come from the API).
@@ -72,7 +88,7 @@ let current = null;
 function showCharacter(c, lookup) {
   current = lookup;
   result.replaceChildren();
-  result.append(el("h3", `${c.name} — ${c.realm}`));
+  result.append(el("h3", `${displayName(c)} — ${c.realm}`));
   result.append(el("p", `Level ${c.level} ${c.race ?? ""} ${c.class ?? ""}${c.spec ? ` (${c.spec})` : ""}`.replace(/\s+/g, " ")));
 
   const m = c.metrics ?? {};
@@ -182,7 +198,7 @@ function renderLifetime(box, data) {
     if (section.image) {
       const img = el("img");
       img.src = section.image;
-      img.alt = `${data.name} portrait`;
+      img.alt = `${data.fullName ?? data.name} portrait`;
       img.className = "portrait";
       head.append(img);
     }
@@ -212,13 +228,23 @@ form.addEventListener("submit", async (event) => {
   const data = new FormData(form);
   const region = data.get("region");
   const game = data.get("game");
-  const realm = slugify(data.get("realm"));
-  const character = data.get("character").trim().toLowerCase();
+  let place = data.get("realm");
+  let character = data.get("character").trim();
+  // "Mezric Stormbrew" typed into Character for Forever: split it.
+  const split = character.match(/^(\S+)[\s-]+(.+)$/);
+  if (game === "forever" && split && !place.trim()) [, character, place] = split;
+  result.hidden = false;
+  if (!place.trim()) {
+    result.textContent = game === "forever" ? "Add the character's surname." : "Add the character's realm.";
+    return;
+  }
+  const realm = slugPlace(game, place);
+  character = character.toLowerCase();
 
   result.hidden = false;
 
   if (!API_BASE) {
-    result.textContent = `Backend not connected yet. Would look up ${character} on ${realm} (${region.toUpperCase()}, ${game}).`;
+    result.textContent = `Backend not connected yet. Would look up ${character} ${realm} (${region.toUpperCase()}, ${game}).`;
     return;
   }
 
@@ -265,7 +291,7 @@ function message(container, text) {
 }
 
 // The game shown in Player Status / Chum Commendations: the backend's default game.
-let groupGame = "classic";
+let groupGame = "forever";
 
 // ---- 1. Player Status ------------------------------------------------------
 // Boilerplate for now: one card per tracked character, padded to GROUP_SIZE.
@@ -292,7 +318,7 @@ async function loadPlayers() {
     }
     grid.replaceChildren();
     for (const c of roster.characters) {
-      grid.append(playerCard(c, week.get(`${c.game}/${c.region}/${c.realmSlug}/${c.key}`), holding.get(c.name) ?? []));
+      grid.append(playerCard(c, week.get(`${c.game}/${c.region}/${c.realmSlug}/${c.key}`), holding.get(displayName(c)) ?? []));
     }
     for (let i = roster.characters.length; i < GROUP_SIZE; i++) grid.append(emptySlot());
     document.getElementById("players-sub").textContent =
@@ -305,12 +331,12 @@ async function loadPlayers() {
 function playerCard(c, wk, holding) {
   const card = el("article", undefined, "player-card");
   card.style.borderTopColor = CLASS_COLORS[c.class] ?? "var(--accent)";
-  card.append(el("h3", c.name ?? c.key));
+  card.append(el("h3", displayName(c)));
   card.append(el("p", `${c.level ? `Level ${c.level} ` : ""}${c.race ?? ""} ${c.class ?? ""}`.replace(/\s+/g, " ").trim(), "muted"));
 
   const m = c.metrics ?? {};
   const rows = [
-    ["Realm", c.realm ?? c.realmSlug],
+    [c.game === "forever" ? "Ruleset" : "Realm", c.realm ?? c.realmSlug],
     ["Item level", fmt(c.itemLevel)],
     ["Sessions", wk?.activity ? `${wk.activity.sessions} (${plural(wk.activity.daysPlayed, "day")})` : "—"],
     ["Profession skill", fmt(m.professionSkill)],

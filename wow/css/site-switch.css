@@ -1,0 +1,33 @@
+/* Top bar shared by /wow (WoW Harvester) and /wow/draft (Character Draft).
+   Self-contained: uses its own ss- class names and colours so neither page's CSS
+   affects it, and it doesn't affect them. */
+.site-switch {
+  position: sticky;
+  top: 0;
+  z-index: 5; /* under the draft board's overlays (z-index 9 and 10) */
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.4rem 0.75rem;
+  background: #07090e;
+  border-bottom: 1px solid #2a2f3a;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.2;
+}
+.site-switch a {
+  padding: 0.45rem 1.1rem;
+  border-radius: 999px;
+  color: #9aa3b2;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+}
+.site-switch a:hover { color: #e6e6e6; border-color: #2a2f3a; }
+.site-switch a[aria-current="page"] {
+  color: #1a1300;
+  background: #e8b64c;
+  border-color: #e8b64c;
+}
+.site-switch a:focus-visible { outline: 2px solid #e8b64c; outline-offset: 2px; }
