@@ -28,11 +28,15 @@
   <main>
     <!-- 1. Player Status: the group's tracked characters -->
     <section class="panel" id="panel-players" role="tabpanel" hidden>
-      <div class="panel-head">
-        <h2>Player Status</h2>
-        <p class="muted" id="players-sub">This week's numbers for our group.</p>
+      <div id="players-overview">
+        <div class="panel-head">
+          <h2>Player Status</h2>
+          <p class="muted" id="players-sub">This week's numbers for our group.</p>
+        </div>
+        <div class="player-grid" id="player-grid"></div>
       </div>
-      <div class="player-grid" id="player-grid"></div>
+      <!-- "See all data" for one tracked character (#players/game/region/realm-or-surname/name) -->
+      <div id="player-detail" hidden></div>
     </section>
 
     <!-- 2. Chum Commendations: this week by default, earlier weeks from the picker -->

@@ -155,7 +155,7 @@ function itemList(items) {
   return dl;
 }
 
-function renderLifetime(box, data) {
+function renderLifetime(box, data, idPrefix = "life") {
   box.replaceChildren();
   box.append(el("h3", "Lifetime stats"));
   const nav = el("nav", undefined, "section-nav");
@@ -183,7 +183,7 @@ function renderLifetime(box, data) {
 
   for (const section of data.sections) {
     const sec = el("section", undefined, "life-section");
-    sec.id = `life-${section.id}`;
+    sec.id = `${idPrefix}-${section.id}`;
     sec.setAttribute("role", "tabpanel");
     const tab = el("button", section.title, "tab");
     tab.type = "button";
@@ -352,7 +352,152 @@ function playerCard(c, wk, holding) {
     for (const t of holding) h.append(el("span", t, "badge"));
     card.append(h);
   }
+  const more = el("a", "See all data →", "see-all");
+  more.href = `#${playerPath(c)}`;
+  card.append(more);
   return card;
+}
+
+// ---- Player detail ("See all data") -------------------------------------------
+// Everything stored for one tracked character: profile, current totals, this
+// week, the last snapshot of each of the last 30 days, Blizzard's lifetime
+// stats, and the raw JSON.
+
+const playerPath = (c) =>
+  ["players", c.game, c.region, c.realmSlug, c.key].map(encodeURIComponent).join("/");
+
+const playersOverview = document.getElementById("players-overview");
+const playerDetail = document.getElementById("player-detail");
+
+function showPlayersOverview() {
+  playerDetail.hidden = true;
+  playersOverview.hidden = false;
+}
+
+async function showPlayerDetail([game, region, realm, name]) {
+  playersOverview.hidden = true;
+  playerDetail.hidden = false;
+  playerDetail.replaceChildren();
+  const back = el("a", "← All players", "back-link");
+  back.href = "#players";
+  playerDetail.append(back);
+  if (!API_BASE) return playerDetail.append(el("p", "Backend not connected yet.", "muted"));
+  const body = el("div");
+  playerDetail.append(body);
+  message(body, "Loading everything we have...");
+
+  const base = `/character/${region}/${encodeURIComponent(realm)}/${encodeURIComponent(name)}`;
+  try {
+    const [history, report, lifetime] = await Promise.all([
+      api(`${base}/history?game=${game}`),
+      api(`/reports/weekly?week=current&game=${game}`).catch(() => null),
+      api(`${base}/lifetime?game=${game}`).catch((err) => ({ error: err.message })),
+    ]);
+    renderPlayerDetail(body, history, playersOf(report).find((p) => p.key === `${game}/${region}/${realm}/${name}`), lifetime);
+  } catch (err) {
+    message(body, `Couldn't load this character: ${err.message}`);
+  }
+}
+
+function section(title, ...children) {
+  const s = el("section", undefined, "detail-section");
+  s.append(el("h3", title), ...children);
+  return s;
+}
+
+function dlOf(rows) {
+  const dl = el("dl", undefined, "stats");
+  for (const [k, v] of rows) if (v !== null && v !== undefined && v !== "") dl.append(el("dt", k), el("dd", String(v)));
+  return dl;
+}
+
+function renderPlayerDetail(box, h, wk, lifetime) {
+  const c = h.character ?? {};
+  const m = c.metrics ?? {};
+  const info = h.metricInfo ?? {};
+  const label = (k) => info[k]?.label ?? k;
+  box.replaceChildren();
+
+  const head = el("div", undefined, "detail-head");
+  head.style.borderLeftColor = CLASS_COLORS[c.class] ?? "var(--accent)";
+  head.append(el("h2", displayName(c)));
+  head.append(el("p", [
+    c.level ? `Level ${c.level}` : null, c.race, c.class, c.spec ? `(${c.spec})` : null,
+  ].filter(Boolean).join(" "), "muted"));
+  box.append(head);
+
+  // Profile + tracking
+  box.append(section("Profile", dlOf([
+    ["Name", c.name],
+    ["Surname", c.surname],
+    [c.game === "forever" ? "Ruleset" : "Realm", c.realm ?? h.realmSlug],
+    ["Region", h.region?.toUpperCase()],
+    ["Game", h.game],
+    ["Faction", c.faction],
+    ["Guild", c.guild],
+    ["Item level", fmt(c.itemLevel)],
+    ["Achievement points", fmt(c.achievementPoints)],
+    ["Last logout", c.lastLogin ? new Date(c.lastLogin).toLocaleString() : null],
+  ])));
+  box.append(section("Tracking", dlOf([
+    ["Tracked since", h.tracked?.addedAt ? new Date(h.tracked.addedAt).toLocaleString() : null],
+    ["Added by", h.tracked?.addedBy],
+    ["Last refreshed", timeAgo(h.tracked?.lastHarvestedAt)],
+    ["Snapshots stored", h.snapshots?.count ? `${fmt(h.snapshots.count)} (since ${new Date(h.snapshots.first).toLocaleDateString()})` : "none yet"],
+  ]), el("p", "A snapshot is saved every 15 minutes and kept for 30 days.", "hint")));
+
+  // Current totals: every tracked stat
+  const keys = Object.keys(info);
+  box.append(section("Current totals", dlOf(keys.map((k) => [label(k), fmt(m[k]) ?? "—"]))));
+
+  // This week
+  const weekRows = keys.map((k) => [label(k), wk?.gains?.[k] !== undefined ? `+${fmt(wk.gains[k])}` : "—"]);
+  if (wk?.activity) weekRows.unshift(["Play sessions", `${wk.activity.sessions} over ${plural(wk.activity.daysPlayed, "day")}`]);
+  box.append(section("This week so far", wk ? dlOf(weekRows) : el("p", "No data for this week yet.", "muted")));
+
+  // Daily history table
+  const days = [...(h.days ?? [])].reverse(); // newest first
+  const cols = keys.filter((k) => days.some((d) => typeof d.metrics?.[k] === "number"));
+  if (days.length && cols.length) {
+    const wrap = el("div", undefined, "table-wrap");
+    const table = el("table", undefined, "history");
+    const thead = el("thead");
+    const hr = el("tr");
+    hr.append(el("th", "Day"));
+    for (const k of cols) hr.append(el("th", label(k)));
+    thead.append(hr);
+    const tbody = el("tbody");
+    days.forEach((d, i) => {
+      const prev = days[i + 1];
+      const tr = el("tr");
+      tr.append(el("th", new Date(`${d.date}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })));
+      for (const k of cols) {
+        const v = d.metrics[k];
+        const td = el("td", typeof v === "number" ? fmt(v) : "—");
+        const delta = typeof v === "number" && typeof prev?.metrics?.[k] === "number" ? v - prev.metrics[k] : 0;
+        if (delta) td.append(el("span", ` ${delta > 0 ? "+" : ""}${fmt(delta)}`, delta > 0 ? "up" : "down"));
+        tr.append(td);
+      }
+      tbody.append(tr);
+    });
+    table.append(thead, tbody);
+    wrap.append(table);
+    box.append(section("Last 30 days", el("p", "End-of-day totals, with the change from the day before.", "hint"), wrap));
+  } else {
+    box.append(section("Last 30 days", el("p", "No history yet. It builds up every 15 minutes once a character is tracked.", "muted")));
+  }
+
+  // Lifetime (live from Blizzard)
+  const life = el("div", undefined, "lifetime");
+  if (lifetime?.sections) renderLifetime(life, lifetime, "detail-life");
+  else life.append(el("p", `Couldn't load lifetime stats: ${lifetime?.error ?? "unknown error"}`, "hint"));
+  box.append(life);
+
+  // Raw data
+  const raw = el("details", undefined, "raw");
+  raw.append(el("summary", "Raw data (JSON)"));
+  raw.append(el("pre", JSON.stringify({ stored: h, thisWeek: wk ?? null }, null, 2)));
+  box.append(section("Everything else", raw));
 }
 
 function emptySlot() {
@@ -448,8 +593,15 @@ function awardCard(a) {
 const PANELS = ["players", "commendations", "search"];
 const loaded = new Set();
 
-function showPanel(name) {
+function showPanel(hash) {
+  const [panel, ...rest] = hash.split("/").map(decodeURIComponent);
+  let name = panel;
   if (!PANELS.includes(name)) name = "players";
+  if (name === "players") {
+    if (rest.length === 4) showPlayerDetail(rest);
+    else showPlayersOverview();
+  }
+  if (rest.length === 4) window.scrollTo(0, 0);
   for (const p of PANELS) {
     document.getElementById(`panel-${p}`).hidden = p !== name;
     const tab = document.querySelector(`.main-tab[data-panel="${p}"]`);
