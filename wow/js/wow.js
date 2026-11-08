@@ -519,7 +519,8 @@ async function loadAwardsPanel() {
       const { weeks } = await api(`/reports/weeks?game=${groupGame}`);
       weekSelect.replaceChildren();
       for (const w of weeks) {
-        const label = w.current ? `This week (from ${w.week}, so far)` : `Week of ${w.week}${w.final ? "" : " (not final yet)"}`;
+        const num = w.number ? `Week ${w.number}` : "Week";
+        const label = w.current ? `${num}: this week (from ${w.week}, so far)` : `${num} (from ${w.week})${w.final ? "" : ", not final yet"}`;
         const opt = el("option", label);
         opt.value = w.current ? "current" : w.week;
         weekSelect.append(opt);
@@ -544,8 +545,8 @@ async function loadAwards(week) {
   try {
     const r = await api(`/reports/weekly?week=${encodeURIComponent(week)}&game=${groupGame}`);
     document.getElementById("awards-sub").textContent = r.complete
-      ? `Final results for the week of ${r.weekStart}.`
-      : `Week of ${r.weekStart}, in progress: commendations can still change hands until the weekly reset.`;
+      ? `Final results for week ${r.weekNumber ?? ""} (from ${r.weekStart}).`.replace("week  (", "the week (")
+      : `Week ${r.weekNumber ?? ""} (from ${r.weekStart}), in progress: commendations can still change hands until Sunday 8 a.m.`;
 
     grid.replaceChildren();
     const list = commendationsOf(r);
