@@ -43,7 +43,13 @@ function syncPlaceField() {
 form.elements.game.addEventListener("change", syncPlaceField);
 syncPlaceField();
 
-const fmt = (n) => (typeof n === "number" ? n.toLocaleString("en-US", { maximumFractionDigits: 1 }) : null);
+// Big numbers (damage) read better short: 1.6B, 48.2M.
+const fmt = (n) =>
+  typeof n !== "number"
+    ? null
+    : Math.abs(n) >= 1e6
+      ? n.toLocaleString("en-US", { notation: "compact", maximumFractionDigits: 1 })
+      : n.toLocaleString("en-US", { maximumFractionDigits: 1 });
 
 // Small helper to build elements without innerHTML (names come from the API).
 function el(tag, text, className) {
@@ -105,6 +111,8 @@ function showCharacter(c, lookup) {
     ["Exalted factions", fmt(m.exaltedFactions)],
     ["Quests completed", fmt(m.questsCompleted)],
     ["Deaths", fmt(m.deaths)],
+    ["Fish caught", fmt(m.fishCaught)],
+    ["Kills (XP or honor)", fmt(m.xpKills)],
   ].filter(([, v]) => v !== null && v !== undefined);
 
   const dl = el("dl", undefined, "stats");
@@ -266,13 +274,15 @@ const CLASS_COLORS = {
 };
 const COMMENDATION_EMOJI = {
   chum: "🦈", business: "💼", grass: "🌱", levels: "⬆️", gear: "🛡️", keystone: "🗝️", achievements: "🎖️",
-  mounts: "🐎", quests: "📜", deaths: "💀", ghost: "👻",
+  mounts: "🐎", quests: "📜", deaths: "💀", ghost: "👻", fish: "🎣", damage: "💥",
 };
 const commendationsOf = (r) => r?.commendations ?? r?.awards ?? [];
 const playersOf = (r) => r?.players ?? r?.leaderboard ?? [];
 const METRIC_LABELS = {
   level: "Levels", itemLevel: "Item level", mythicRating: "M+ rating", achievementPoints: "Achievements",
   mounts: "Mounts", honorableKills: "Honorable kills", questsCompleted: "Quests", deaths: "Deaths",
+  fishCaught: "Fish caught",
+  xpKills: "Kills (XP or honor)",
   professionSkill: "Profession skill", exaltedFactions: "Exalted factions", bgHonorableKills: "Battleground HKs",
 };
 const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
@@ -581,11 +591,13 @@ function awardCard(a) {
   card.append(el("div", COMMENDATION_EMOJI[a.id] ?? "🏅", "award-emoji"));
   card.append(el("h3", a.title));
   card.append(el("p", a.blurb, "muted"));
+  // "412 kills" when the commendation has a unit.
+  const amount = (v) => `${fmt(v)}${a.unit ? ` ${a.unit}` : ""}`;
   const win = el("p", undefined, "winner");
-  win.append(el("strong", first.name), el("span", ` ${fmt(first.value)}`, "pts"));
+  win.append(el("strong", first.name), el("span", ` ${amount(first.value)}`, "pts"));
   card.append(win);
   if (first.note) card.append(el("p", first.note, "muted small"));
-  if (rest.length) card.append(el("p", `Runners-up: ${rest.map((w) => `${w.name} (${fmt(w.value)})`).join(", ")}`, "muted small"));
+  if (rest.length) card.append(el("p", `Runners-up: ${rest.map((w) => `${w.name} (${amount(w.value)})`).join(", ")}`, "muted small"));
   return card;
 }
 
